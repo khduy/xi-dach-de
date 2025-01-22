@@ -11,7 +11,7 @@ services:
       - key: NODE_ENV
         value: production
       - key: CLIENT_URL
-        value: https://xidach-client.onrender.com
+        value: https://{username}.github.io/xi-dach-de # Replace {username} with your GitHub username
 
   # Frontend static site
   - type: web
