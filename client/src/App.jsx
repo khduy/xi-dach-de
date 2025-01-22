@@ -20,29 +20,32 @@ import logo from './logo.png';
 const tableStyles = {
   background: 'linear-gradient(145deg, #1a1a1a 0%, #2d2d2d 100%)',
   minHeight: '100vh',
-  padding: '24px',
+  padding: { xs: '4px', sm: '12px', md: '24px' },
   color: 'white',
   transition: 'all 0.3s ease'
 };
 
 const cardTableStyles = {
   background: 'linear-gradient(to bottom, #2d2d2d, #1f1f1f)',
-  border: '12px solid #4a3728',
-  borderRadius: '24px',
-  padding: '32px',
+  border: { xs: '8px solid #4a3728', sm: '12px solid #4a3728' },
+  borderRadius: { xs: '16px', sm: '24px' },
+  padding: { xs: '8px', sm: '16px', md: '32px' },
   boxShadow: '0 12px 48px rgba(0,0,0,0.7)',
   position: 'relative',
   backdropFilter: 'blur(10px)',
-  transition: 'all 0.3s ease'
+  transition: 'all 0.3s ease',
+  overflow: 'hidden'
 };
 
 const playerAreaStyles = {
   background: 'rgba(0,0,0,0.5)',
   borderRadius: '16px',
-  padding: '24px',
-  marginBottom: '24px',
+  padding: { xs: '12px', sm: '16px', md: '24px' },
+  marginBottom: { xs: '12px', sm: '24px' },
   boxShadow: '0 8px 24px rgba(0,0,0,0.4)',
-  minWidth: '400px',
+  minWidth: { xs: '280px', sm: '400px' },
+  maxWidth: '100%',
+  width: '100%',
   border: '1px solid rgba(255,255,255,0.1)',
   transition: 'all 0.3s ease',
   '&:hover': {
@@ -54,15 +57,16 @@ const playerAreaStyles = {
 const cardAreaStyles = {
   display: 'flex',
   flexWrap: 'wrap',
-  gap: '12px',
-  padding: '24px',
-  minHeight: '140px',
+  gap: { xs: '8px', sm: '12px' },
+  padding: { xs: '12px', sm: '24px' },
+  minHeight: { xs: '100px', sm: '140px' },
   background: 'rgba(0,0,0,0.4)',
   borderRadius: '16px',
-  marginTop: '12px',
+  marginTop: { xs: '8px', sm: '12px' },
   border: '1px solid rgba(255,255,255,0.15)',
   justifyContent: 'center',
-  transition: 'all 0.3s ease'
+  transition: 'all 0.3s ease',
+  overflow: 'auto'
 };
 
 const goldText = {
@@ -367,18 +371,28 @@ function App() {
 
   if (currentRoom && gameState) {
     console.log('Rendering game view with state:', JSON.stringify(gameState, null, 2));
-    const isDealer = playerName === gameState.dealer.id;
-    const canStartGame = isDealer && gameState.state === 'waiting' && Object.keys(gameState.players).length > 0;
-    const isCurrentTurn = gameState.currentTurn === playerName;
-    const myStatus = isDealer ? gameState.dealer.status : (gameState.players[playerName]?.status || 'waiting');
+    
+    // Initialize default game state structure if needed
+    const safeGameState = {
+      ...gameState,
+      dealer: gameState.dealer || { id: '', hand: [], status: 'waiting' },
+      players: gameState.players || {},
+      state: gameState.state || 'waiting',
+      currentTurn: gameState.currentTurn || null
+    };
+
+    const isDealer = playerName === safeGameState.dealer.id;
+    const canStartGame = isDealer && safeGameState.state === 'waiting' && Object.keys(safeGameState.players).length > 0;
+    const isCurrentTurn = safeGameState.currentTurn === playerName;
+    const myStatus = isDealer ? safeGameState.dealer.status : (safeGameState.players[playerName]?.status || 'waiting');
 
     // Debug logging for compare button conditions
     if (isDealer) {
       console.log('Compare button conditions:', {
         isDealer,
-        gameState: gameState.state,
-        dealerHandValue: gameState.dealer.handValue,
-        players: Object.values(gameState.players).map(p => ({
+        gameState: safeGameState.state,
+        dealerHandValue: safeGameState.dealer.handValue,
+        players: Object.values(safeGameState.players).map(p => ({
           id: p.id,
           name: p.name,
           status: p.status
@@ -387,19 +401,21 @@ function App() {
     }
 
     // Convert players array to object if needed
-    if (Array.isArray(gameState.players)) {
-      gameState.players = Object.fromEntries(
-        gameState.players.map(player => [player.id, player])
+    if (Array.isArray(safeGameState.players)) {
+      safeGameState.players = Object.fromEntries(
+        safeGameState.players.map(player => [player.id, player])
       );
     }
 
     // Ensure dealer and players have hands
-    const dealerHand = gameState.dealer.hand || [];
-    const players = gameState.players || {};
+    const dealerHand = safeGameState.dealer.hand || [];
+    const players = safeGameState.players;
 
     return (
       <Box sx={tableStyles}>
-        <Container maxWidth="md">
+        <Container maxWidth="lg" sx={{ 
+          px: { xs: 0, sm: 1, md: 2 }
+        }}>
           <Box sx={{
             ...cardTableStyles,
             display: 'flex',
@@ -411,49 +427,49 @@ function App() {
               <Box sx={{ 
                 display: 'flex', 
                 flexWrap: 'wrap', 
-                gap: 2,
+                gap: { xs: 1, sm: 2 },
                 justifyContent: 'center'
               }}>
                 {/* Dealer */}
                 <Box 
-                  key={gameState.dealer.id} 
+                  key={safeGameState.dealer.id} 
                   sx={{
                     ...playerAreaStyles,
                     flex: '1 1 400px',
                     maxWidth: '600px',
-                    border: gameState.dealer.id === gameState.currentTurn ? '2px solid #FFD700' : '1px solid rgba(255,255,255,0.1)',
-                    boxShadow: gameState.dealer.id === gameState.currentTurn ? '0 0 15px rgba(255, 215, 0, 0.3)' : 'none',
+                    border: safeGameState.dealer.id === safeGameState.currentTurn ? '2px solid #FFD700' : '1px solid rgba(255,255,255,0.1)',
+                    boxShadow: safeGameState.dealer.id === safeGameState.currentTurn ? '0 0 15px rgba(255, 215, 0, 0.3)' : 'none',
                     transition: 'all 0.3s ease'
                   }}
                 >
                   
                   <Typography variant="h6" sx={{ ...goldText, mb: 2 }}>
-                    {gameState.dealer.name} (Cái)
+                    {safeGameState.dealer.name} (Cái)
                   </Typography>
                   
                   {/* Add dealer's special hands result box */}
-                  {gameState.state === 'finished' && (gameState.dealer.status === 'stood' || gameState.dealer.status === 'bust') && 
-                   (gameState.dealer.handValue > 21 || 
-                    (gameState.dealer.hand.length === 2 && gameState.dealer.hand.every(card => card.value === 'A')) ||
-                    (gameState.dealer.hand.length === 2 && gameState.dealer.hand.some(card => card.value === 'A') && 
-                     gameState.dealer.hand.some(card => ['10', 'J', 'Q', 'K'].includes(card.value))) ||
-                    (gameState.dealer.hand.length === 5 && gameState.dealer.handValue <= 21)) && (
+                  {safeGameState.state === 'finished' && (safeGameState.dealer.status === 'stood' || safeGameState.dealer.status === 'bust') && 
+                   (safeGameState.dealer.handValue > 21 || 
+                    (safeGameState.dealer.hand.length === 2 && safeGameState.dealer.hand.every(card => card.value === 'A')) ||
+                    (safeGameState.dealer.hand.length === 2 && safeGameState.dealer.hand.some(card => card.value === 'A') && 
+                     safeGameState.dealer.hand.some(card => ['10', 'J', 'Q', 'K'].includes(card.value))) ||
+                    (safeGameState.dealer.hand.length === 5 && safeGameState.dealer.handValue <= 21)) && (
                     <Box sx={resultStyles[
-                      gameState.dealer.handValue > 21 ? 'lose' :
-                      (gameState.dealer.hand.length === 2 && gameState.dealer.hand.every(card => card.value === 'A')) ? 'win' :
-                      (gameState.dealer.hand.length === 2 && gameState.dealer.hand.some(card => card.value === 'A') && 
-                       gameState.dealer.hand.some(card => ['10', 'J', 'Q', 'K'].includes(card.value))) ? 'win' :
-                      (gameState.dealer.hand.length === 5 && gameState.dealer.handValue <= 21) ? 'win' :
+                      safeGameState.dealer.handValue > 21 ? 'lose' :
+                      (safeGameState.dealer.hand.length === 2 && safeGameState.dealer.hand.every(card => card.value === 'A')) ? 'win' :
+                      (safeGameState.dealer.hand.length === 2 && safeGameState.dealer.hand.some(card => card.value === 'A') && 
+                       safeGameState.dealer.hand.some(card => ['10', 'J', 'Q', 'K'].includes(card.value))) ? 'win' :
+                      (safeGameState.dealer.hand.length === 5 && safeGameState.dealer.handValue <= 21) ? 'win' :
                       'tie'
                     ]}>
-                      {gameState.dealer.handValue > 21 ? (
+                      {safeGameState.dealer.handValue > 21 ? (
                         <Typography variant="h6" sx={{ fontWeight: 'bold' }}>😔 Quắc</Typography>
-                      ) : (gameState.dealer.hand.length === 2 && gameState.dealer.hand.every(card => card.value === 'A')) ? (
+                      ) : (safeGameState.dealer.hand.length === 2 && safeGameState.dealer.hand.every(card => card.value === 'A')) ? (
                         <Typography variant="h6" sx={{ fontWeight: 'bold' }}>🎉 Xì Bàng!</Typography>
-                      ) : (gameState.dealer.hand.length === 2 && gameState.dealer.hand.some(card => card.value === 'A') && 
-                          gameState.dealer.hand.some(card => ['10', 'J', 'Q', 'K'].includes(card.value))) ? (
+                      ) : (safeGameState.dealer.hand.length === 2 && safeGameState.dealer.hand.some(card => card.value === 'A') && 
+                          safeGameState.dealer.hand.some(card => ['10', 'J', 'Q', 'K'].includes(card.value))) ? (
                         <Typography variant="h6" sx={{ fontWeight: 'bold' }}>🎉 Xì Dách!</Typography>
-                      ) : (gameState.dealer.hand.length === 5 && gameState.dealer.handValue <= 21) ? (
+                      ) : (safeGameState.dealer.hand.length === 5 && safeGameState.dealer.handValue <= 21) ? (
                         <Typography variant="h6" sx={{ fontWeight: 'bold' }}>🎉 Ngũ Linh!</Typography>
                       ) : null}
                     </Box>
@@ -464,7 +480,7 @@ function App() {
                       <Card 
                         key={`dealer-card-${index}`}
                         card={card} 
-                        hidden={!isDealer && !gameState.showAllCards && gameState.state === 'playing' && gameState.dealer.status !== 'stood'}
+                        hidden={!isDealer && !safeGameState.showAllCards && safeGameState.state === 'playing' && safeGameState.dealer.status !== 'stood'}
                       />
                     ))}
                   </Box>
@@ -501,8 +517,8 @@ function App() {
                       ...playerAreaStyles,
                       flex: '1 1 400px',
                       maxWidth: '600px',
-                      border: player.id === gameState.currentTurn ? '2px solid #FFD700' : '1px solid rgba(255,255,255,0.1)',
-                      boxShadow: player.id === gameState.currentTurn ? '0 0 15px rgba(255, 215, 0, 0.3)' : 'none',
+                      border: player.id === safeGameState.currentTurn ? '2px solid #FFD700' : '1px solid rgba(255,255,255,0.1)',
+                      boxShadow: player.id === safeGameState.currentTurn ? '0 0 15px rgba(255, 215, 0, 0.3)' : 'none',
                       transition: 'all 0.3s ease'
                     }}
                   >
@@ -511,7 +527,7 @@ function App() {
                     </Typography>
                     
                     {/* Show player's result when game is finished or when hands have been compared */}
-                    {(gameState.state === 'finished' || gameState.revealedPlayers?.[player.id]) && 
+                    {(safeGameState.state === 'finished' || safeGameState.revealedPlayers?.[player.id]) && 
                      (player.status === 'stood' || player.status === 'bust') && (
                       <Box sx={resultStyles[
                         isDealer ? 
@@ -553,7 +569,7 @@ function App() {
                         <Card 
                           key={`player-${player.id}-card-${index}`}
                           card={card} 
-                          hidden={player.id !== playerName && !gameState.showAllCards && !gameState.revealedPlayers?.[player.id]}
+                          hidden={player.id !== playerName && !safeGameState.showAllCards && !safeGameState.revealedPlayers?.[player.id]}
                         />
                       ))}
                     </Box>
@@ -583,21 +599,21 @@ function App() {
                       </Box>
                     )}
                     {/* Dealer's compare hands button */}
-                    {isDealer && gameState.state === 'playing' && ['stood', 'bust'].includes(player.status) && (
+                    {isDealer && safeGameState.state === 'playing' && ['stood', 'bust'].includes(player.status) && (
                       <Box sx={{ mt: 2 }}>
                         <Button
                           variant="contained"
                           color="info"
                           size="large"
                           onClick={() => handleCompareHands(player.id)}
-                          disabled={!gameState.dealer.handValue || gameState.dealer.handValue < 16}
+                          disabled={!safeGameState.dealer.handValue || safeGameState.dealer.handValue < 15}
                           sx={{ 
                             width: '100%', 
                             py: 1.5,
                             fontSize: '1.1rem',
-                            backgroundColor: gameState.dealer.handValue >= 16 ? '#2196f3' : 'grey',
+                            backgroundColor: safeGameState.dealer.handValue >= 15 ? '#2196f3' : 'grey',
                             '&:hover': {
-                              backgroundColor: gameState.dealer.handValue >= 16 ? '#1976d2' : 'grey',
+                              backgroundColor: safeGameState.dealer.handValue >= 15 ? '#1976d2' : 'grey',
                             },
                             '&.Mui-disabled': {
                               color: 'white',
@@ -605,8 +621,8 @@ function App() {
                             }
                           }}
                         >
-                          So Bài với {player.name} {(!gameState.dealer.handValue || gameState.dealer.handValue < 16) ? 
-                            `(Cần 16 điểm${gameState.dealer.handValue ? `, hiện có ${gameState.dealer.handValue} điểm` : ''})` : ''}
+                          So Bài {(!safeGameState.dealer.handValue || safeGameState.dealer.handValue < 16) ? 
+                            `(Cần 15 điểm${safeGameState.dealer.handValue ? `, hiện có ${safeGameState.dealer.handValue} điểm` : ''})` : ''}
                         </Button>
                       </Box>
                     )}
@@ -629,7 +645,7 @@ function App() {
                   </Button>
                 )}
 
-                {isDealer && gameState.state === 'finished' && (
+                {isDealer && safeGameState.state === 'finished' && (
                   <Button
                     fullWidth
                     variant="contained"

@@ -7,23 +7,27 @@ const PlayerHand = ({ player, isDealer = false, isCurrentPlayer = false, reveale
     <Paper
       elevation={3}
       sx={{
-        padding: { xs: 1, sm: 2 },
-        margin: { xs: 0.5, sm: 1 },
-        minWidth: { xs: '100%', sm: 200 },
+        padding: { xs: 0.5, sm: 1, md: 2 },
+        margin: { xs: 0.25, sm: 0.5, md: 1 },
+        minWidth: { xs: '92%', sm: '200px' },
+        maxWidth: '100%',
         backgroundColor: 'white',
         border: isCurrentPlayer ? '2px solid #2196f3' : '1px solid #ccc',
         boxShadow: isCurrentPlayer 
-          ? '0 0 15px rgba(33, 150, 243, 0.5)' 
+          ? '0 0 10px rgba(33, 150, 243, 0.4)' 
           : 'none',
-        transition: 'all 0.3s ease'
+        transition: 'all 0.3s ease',
+        position: 'relative',
+        overflow: 'hidden'
       }}
     >
       <Typography 
         variant="h6" 
         gutterBottom 
         sx={{
-          fontSize: { xs: '1rem', sm: '1.25rem' },
-          mb: { xs: 0.5, sm: 1 }
+          fontSize: { xs: '0.875rem', sm: '1rem', md: '1.25rem' },
+          mb: { xs: 0.25, sm: 0.5, md: 1 },
+          px: { xs: 0.5, sm: 1 }
         }}
       >
         {player.name} {isDealer ? '(Cái)' : ''} 
@@ -34,28 +38,20 @@ const PlayerHand = ({ player, isDealer = false, isCurrentPlayer = false, reveale
           display: 'flex',
           flexDirection: 'row',
           overflowX: 'auto',
-          gap: { xs: 0.5, sm: 1 },
-          marginTop: { xs: 0.5, sm: 1 },
-          padding: { xs: '2px', sm: '4px' },
+          gap: { xs: 0.15, sm: 0.25, md: 0.5 },
+          marginTop: { xs: 0.25, sm: 0.5, md: 1 },
+          marginX: { xs: -0.25, sm: 0 },
+          padding: { xs: '1px', sm: '2px', md: '4px' },
           WebkitOverflowScrolling: 'touch',
           scrollSnapType: 'x mandatory',
+          msOverflowStyle: 'none',
+          scrollbarWidth: 'none',
+          '&::-webkit-scrollbar': {
+            display: 'none'
+          },
           '& > *': {
             scrollSnapAlign: 'start',
-          },
-          '&::-webkit-scrollbar': {
-            height: { xs: '4px', sm: '8px' },
-          },
-          '&::-webkit-scrollbar-track': {
-            background: '#f1f1f1',
-            borderRadius: '4px',
-          },
-          '&::-webkit-scrollbar-thumb': {
-            background: '#888',
-            borderRadius: '4px',
-          },
-          '&::-webkit-scrollbar-thumb:hover': {
-            background: '#555',
-          },
+          }
         }}
       >
         {player.hand.map((card, index) => (
@@ -71,8 +67,9 @@ const PlayerHand = ({ player, isDealer = false, isCurrentPlayer = false, reveale
         <Typography 
           color="error" 
           sx={{ 
-            marginTop: { xs: 0.5, sm: 1 },
-            fontSize: { xs: '0.875rem', sm: '1rem' }
+            marginTop: { xs: 0.25, sm: 0.5, md: 1 },
+            fontSize: { xs: '0.75rem', sm: '0.875rem', md: '1rem' },
+            px: { xs: 0.5, sm: 1 }
           }}
         >
           Quắc!
@@ -83,8 +80,9 @@ const PlayerHand = ({ player, isDealer = false, isCurrentPlayer = false, reveale
         <Typography 
           color="primary" 
           sx={{ 
-            marginTop: { xs: 0.5, sm: 1 },
-            fontSize: { xs: '0.875rem', sm: '1rem' }
+            marginTop: { xs: 0.25, sm: 0.5, md: 1 },
+            fontSize: { xs: '0.75rem', sm: '0.875rem', md: '1rem' },
+            px: { xs: 0.5, sm: 1 }
           }}
         >
           Đã dằn

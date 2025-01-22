@@ -2,7 +2,7 @@
   "name": "xidach-client",
   "version": "0.1.0",
   "private": true,
-  "homepage": "https://{username}.github.io/xi-dach-de",
+  "homepage": "https://khduy.github.io/xi-dach-de",
   "dependencies": {
     "@emotion/react": "^11.11.3",
     "@emotion/styled": "^11.11.0",

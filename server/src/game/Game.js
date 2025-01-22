@@ -131,60 +131,51 @@ class Game {
 
     // Check for immediate win conditions
     const dealerSpecial = this.checkSpecialHand(this.dealer.hand);
-    let hasImmediateWinner = false;
 
     // If dealer has Xì Bàng, game ends immediately
     if (dealerSpecial === 'xiBang') {
       this.state = 'finished';
       this.dealer.status = 'stood';
-      // All players lose
-      for (const player of this.players.values()) {
+      // All players lose and their cards are revealed
+      for (const [playerName, player] of this.players) {
         player.status = 'stood';
         player.result = 'lose';
+        this.revealedPlayers.add(playerName); // Reveal all players' cards
       }
       return true;
     }
 
     // Check each player for Xì Bàng or Xì Dách
-    for (const player of this.players.values()) {
+    for (const [playerName, player] of this.players) {
       const playerSpecial = this.checkSpecialHand(player.hand);
       if (playerSpecial === 'xiBang' || (playerSpecial === 'xiDach' && dealerSpecial !== 'xiDach')) {
-        hasImmediateWinner = true;
         player.status = 'stood';
         player.result = 'win';
+        this.revealedPlayers.add(playerName); // Reveal winning player's cards
       } else if (dealerSpecial === 'xiDach' && playerSpecial !== 'xiBang') {
-        hasImmediateWinner = true;
         player.status = 'stood';
         player.result = 'lose';
+        this.revealedPlayers.add(playerName); // Reveal losing player's cards
       }
     }
 
-    // If there's an immediate winner, end the game
-    if (hasImmediateWinner) {
+    // Continue with normal game for remaining players
+    this.state = 'playing';
+    
+    // Find first player who hasn't won/lost yet
+    for (const playerName of this.dealingOrder) {
+      const player = this.players.get(playerName);
+      if (!player.result) {
+        this.currentTurn = playerName;
+        player.status = 'playing';
+        break;
+      }
+    }
+
+    // If no players can play (all have special hands), end the game
+    if (!this.currentTurn) {
       this.state = 'finished';
       this.dealer.status = 'stood';
-      // Set result for remaining players
-      for (const player of this.players.values()) {
-        if (player.result === undefined) {
-          player.status = 'stood';
-          if (dealerSpecial === 'xiDach') {
-            player.result = 'lose';
-          } else {
-            player.result = 'tie';
-          }
-        }
-      }
-      return true;
-    }
-
-    // If no immediate winner, continue with normal game
-    this.state = 'playing';
-    this.currentTurn = this.dealingOrder[0];
-    
-    // Set first player's status to playing
-    const firstPlayer = this.players.get(this.currentTurn);
-    if (firstPlayer) {
-      firstPlayer.status = 'playing';
     }
 
     return true;
@@ -396,9 +387,9 @@ class Game {
     const player = this.players.get(playerName);
     if (!player || !['stood', 'bust'].includes(player.status)) return { success: false, reason: 'playerNotFinished' };
 
-    // Check if dealer's hand value is at least 16
+    // Check if dealer's hand value is at least 15
     const dealerValue = this.calculateHandValue(this.dealer.hand);
-    if (dealerValue < 16) return { success: false, reason: 'dealerHandTooLow' };
+    if (dealerValue < 15) return { success: false, reason: 'dealerHandTooLow' };
 
     // Add to revealed players - this makes the hands public
     this.revealedPlayers.add(playerName);
