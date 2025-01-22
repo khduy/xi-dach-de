@@ -3,15 +3,16 @@ services:
   - type: web
     name: xidach-server
     env: node
-    buildCommand: cd server && npm install
-    startCommand: cd server && npm start
+    rootDir: server # Set root directory to server folder
+    buildCommand: npm install
+    startCommand: npm start
     envVars:
       - key: PORT
         value: 10000
       - key: NODE_ENV
         value: production
       - key: CLIENT_URL
-        value: https://{username}.github.io/xi-dach-de # Replace {username} with your GitHub username
+        value: https://khduy.github.io/xi-dach-de # Replace {username} with your GitHub username
 
   # Frontend static site
   - type: web
