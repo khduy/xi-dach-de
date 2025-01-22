@@ -1,0 +1,27 @@
+services:
+  - type: web
+    name: xidach-server
+    env: node
+    buildCommand: cd server && npm install
+    startCommand: cd server && npm start
+    envVars:
+      - key: PORT
+        value: 10000
+      - key: NODE_ENV
+        value: production
+      - key: CLIENT_URL
+        fromService:
+          name: xidach-client
+          type: web
+          property: url
+
+  - type: static
+    name: xidach-client
+    buildCommand: cd client && npm install && npm run build
+    staticPublishPath: client/build
+    envVars:
+      - key: REACT_APP_SERVER_URL
+        fromService:
+          name: xidach-server
+          type: web
+          property: url 
