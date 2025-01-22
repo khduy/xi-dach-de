@@ -11,10 +11,7 @@ services:
       - key: NODE_ENV
         value: production
       - key: CLIENT_URL
-        fromService:
-          name: xidach-client
-          type: web
-          property: url
+        value: https://xidach-client.onrender.com
 
   # Frontend static site
   - type: web
@@ -28,7 +25,4 @@ services:
         destination: /index.html
     envVars:
       - key: REACT_APP_SERVER_URL
-        fromService:
-          name: xidach-server
-          type: web
-          property: url 
+        value: https://xidach-server.onrender.com 
