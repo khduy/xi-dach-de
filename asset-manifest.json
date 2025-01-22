@@ -1,11 +1,11 @@
 {
   "files": {
-    "main.js": "/xi-dach-de/static/js/main.e2eb347f.js",
+    "main.js": "/xi-dach-de/static/js/main.aefe901e.js",
     "static/media/logo.png": "/xi-dach-de/static/media/logo.22ea963300b645fac4b1.png",
     "index.html": "/xi-dach-de/index.html",
-    "main.e2eb347f.js.map": "/xi-dach-de/static/js/main.e2eb347f.js.map"
+    "main.aefe901e.js.map": "/xi-dach-de/static/js/main.aefe901e.js.map"
   },
   "entrypoints": [
-    "static/js/main.e2eb347f.js"
+    "static/js/main.aefe901e.js"
   ]
 }
